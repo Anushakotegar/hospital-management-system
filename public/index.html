@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Hospital Management System</title>
+
+<style>
+
+body{
+font-family: Arial;
+background:#f4f6f9;
+padding:20px;
+}
+
+.container{
+width:900px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0px 0px 10px gray;
+}
+
+h1{
+text-align:center;
+}
+
+input{
+padding:10px;
+margin:5px;
+}
+
+button{
+padding:10px;
+background:#2196f3;
+color:white;
+border:none;
+cursor:pointer;
+}
+
+table{
+width:100%;
+margin-top:20px;
+border-collapse:collapse;
+}
+
+table,th,td{
+border:1px solid black;
+}
+
+th{
+background:#2196f3;
+color:white;
+}
+
+th,td{
+padding:10px;
+text-align:center;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🏥 Hospital Management System</h1>
+
+<h2>Insert Patient</h2>
+
+<input id="id" placeholder="Patient ID">
+<input id="name" placeholder="Name">
+<input id="age" placeholder="Age">
+<input id="gender" placeholder="Gender">
+<input id="phone" placeholder="Phone">
+<input id="address" placeholder="Address">
+<button onclick="addPatient()">
+Insert
+</button>
+
+<hr>
+
+<h2>Update Patient</h2>
+
+<input id="uid" placeholder="Patient ID">
+<input id="uname" placeholder="New Name">
+
+<button onclick="updatePatient()">
+Update
+</button>
+
+<hr>
+
+<h2>Delete Patient</h2>
+
+<input id="did" placeholder="Patient ID">
+
+<button onclick="deletePatient()">
+Delete
+</button>
+
+<hr>
+
+<h2>Stored Procedure</h2>
+
+<input id="billid" placeholder="Patient ID">
+
+<button onclick="generateBill()">
+Generate Bill
+</button>
+<div id="billOutput"
+style="
+margin-top:15px;
+padding:10px;
+border:1px solid #ccc;
+background:#f8f8f8;">
+Bill result will appear here
+</div>
+
+<hr>
+
+<button onclick="loadPatients()">
+Display Records
+</button>
+
+<table>
+
+<thead>
+
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Age</th>
+<th>Gender</th>
+<th>Phone</th>
+<th>Address</th>
+</tr>
+
+</thead>
+
+<tbody id="patientsBody">
+
+</tbody>
+
+</table>
+
+</div>
+
+<script>
+
+const API = "http://localhost:3000";
+
+function loadPatients(){
+
+fetch(API + "/patients")
+
+.then(res=>res.json())
+
+.then(data=>{
+
+let rows="";
+
+data.forEach(p=>{
+
+rows += `
+<tr>
+<td>${p.patient_id}</td>
+<td>${p.name}</td>
+<td>${p.age}</td>
+<td>${p.gender}</td>
+<td>${p.phone}</td>
+<td>${p.address}</td>
+</tr>
+`;
+
+});
+
+document.getElementById("patientsBody").innerHTML = rows;
+
+});
+
+}
+
+// INSERT
+function addPatient(){
+
+fetch(API + "/patients",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+patient_id:
+document.getElementById("id").value,
+
+name:
+document.getElementById("name").value,
+
+age:
+document.getElementById("age").value,
+
+gender:
+document.getElementById("gender").value,
+
+phone:
+document.getElementById("phone").value,
+
+address:
+document.getElementById("address").value
+
+})
+
+})
+.then(res=>res.text())
+.then(msg=>{
+
+alert(msg);
+
+loadPatients();
+
+});
+
+}
+
+// UPDATE
+function updatePatient(){
+
+fetch(API + "/patients/" +
+document.getElementById("uid").value,{
+
+method:"PUT",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+name:
+document.getElementById("uname").value
+
+})
+
+})
+.then(res=>res.text())
+.then(msg=>{
+
+alert(msg);
+
+loadPatients();
+
+});
+
+}
+
+// DELETE
+function deletePatient(){
+
+fetch(API + "/patients/" +
+document.getElementById("did").value,{
+
+method:"DELETE"
+
+})
+.then(res=>res.text())
+.then(msg=>{
+
+alert(msg);
+
+loadPatients();
+
+});
+
+}
+
+// STORED PROCEDURE
+function generateBill(){
+
+fetch(API + "/generate-bill/" +
+document.getElementById("billid").value)
+
+.then(res => res.json())
+
+.then(data => {
+
+document.getElementById("billOutput").innerHTML =
+"<pre>" + JSON.stringify(data, null, 2) + "</pre>";
+
+})
+
+.catch(err => {
+
+console.log(err);
+
+document.getElementById("billOutput").innerHTML =
+"Error generating bill";
+
+});
+
+}
+
+loadPatients();
+
+</script>
+
+</body>
+
+</html>
